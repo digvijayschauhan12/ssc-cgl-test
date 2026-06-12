@@ -177,6 +177,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .sheet-q{display:flex;gap:10px;margin-bottom:20px;}
 .sheet-q-no{font-weight:800;color:var(--accent-ink);}
 .sheet-q-text{font-weight:600;color:var(--ink);line-height:1.5;}
+.sheet-q-image{margin:8px 0;}
+.sheet-q-image img{max-width:100%;border-radius:8px;border:1px solid var(--line);}
 .sheet-opts{list-style:upper-alpha;margin:10px 0 0;padding-left:22px;color:#3a4163;}
 .sheet-opts li{margin-bottom:5px;line-height:1.4;}
 .sheet-correct{color:#0a6b60;font-weight:700;}
@@ -208,6 +210,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .q-source{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;}
 .q-text{color:var(--ink);line-height:1.5;margin-bottom:22px;}
 .q-text p{font-weight:500;font-size:18px;}
+.q-image{margin:-8px 0 22px;}
+.q-image img{max-width:100%;border-radius:12px;border:1px solid var(--line);}
 .opt-list{display:flex;flex-direction:column;gap:11px;}
 .opt{display:flex;align-items:center;gap:14px;text-align:left;padding:15px 17px;border-radius:14px;background:#fff;border:1.6px solid var(--line);}
 .opt:hover:not(:disabled){border-color:color-mix(in srgb,var(--c) 50%,var(--line));background:color-mix(in srgb,var(--c) 4%,#fff);}

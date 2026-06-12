@@ -118,6 +118,11 @@ function PaperViewer({ tier, info, onClose }) {
                   <div className="sheet-q-no">Q{i + 1}.</div>
                   <div style={{ flex: 1 }}>
                     <div className="sheet-q-text" dangerouslySetInnerHTML={{ __html: q.q.split("\n\n")[0] + (q.q.includes("\n\n") ? " " + q.q.split("\n\n")[1] : "") }} />
+                    {q.image && (
+                      <div className="sheet-q-image">
+                        <img src={q.image} alt="Question figure / table" loading="lazy" />
+                      </div>
+                    )}
                     <ol className="sheet-opts">
                       {q.options.map((o, oi) => (
                         <li key={oi} className={oi === q.answer ? "sheet-correct" : undefined}>

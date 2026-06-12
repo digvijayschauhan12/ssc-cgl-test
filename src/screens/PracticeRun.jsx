@@ -114,6 +114,12 @@ export default function PracticeRun() {
           ))}
         </div>
 
+        {q.image && (
+          <div className="q-image">
+            <img src={q.image} alt="Question figure / table" loading="lazy" />
+          </div>
+        )}
+
         <div className="opt-list">
           {q.options.map((opt, i) => {
             const isPicked = picked === i;
