@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Icon from "../components/Icon";
 import { SUBJECTS, QUESTIONS } from "../data/data";
 
-const SET_SIZE = 20;
+const SET_SIZE = 25;
 
 function buildSet(subjectId) {
   let pool;
@@ -19,7 +19,7 @@ function buildSet(subjectId) {
 export default function PracticeRun() {
   const navigate = useNavigate();
   const { subjectId } = useParams();
-  const [set] = useState(() => buildSet(subjectId));
+  const [set, setSet] = useState(() => buildSet(subjectId));
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState(() => Array(set.length).fill(null));
   const [done, setDone] = useState(false);
@@ -73,7 +73,10 @@ export default function PracticeRun() {
             </p>
             <div className="result-actions">
               <button className="btn btn-primary" onClick={() => { setIdx(0); setAnswers(Array(set.length).fill(null)); setDone(false); }}>
-                <Icon name="practice" size={17} /> Practice again
+                <Icon name="practice" size={17} /> Retry this set
+              </button>
+              <button className="btn btn-dark" onClick={() => { const next = buildSet(subjectId); setSet(next); setIdx(0); setAnswers(Array(next.length).fill(null)); setDone(false); }}>
+                <Icon name="spark" size={17} /> Practice again (new set)
               </button>
               <button className="btn btn-ghost" onClick={() => navigate("/practice")}>Pick another subject</button>
             </div>

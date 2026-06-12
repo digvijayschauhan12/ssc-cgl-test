@@ -83,7 +83,7 @@ function PaperViewer({ tier, info, onClose }) {
   const sourceTag = `${tier.name} · ${info.date} · ${info.shift}`;
   const allQs = Object.values(QUESTIONS).flat();
   const matched = allQs.filter((q) => q.source === sourceTag);
-  const previewQs = (matched.length ? matched : allQs).slice(0, 3);
+  const previewQs = matched.length ? matched : allQs.slice(0, 3);
   return (
     <div className="modal-scrim" onClick={onClose}>
       <div className="viewer" onClick={(e) => e.stopPropagation()}>
@@ -111,18 +111,25 @@ function PaperViewer({ tier, info, onClose }) {
               </div>
             </div>
             <div className="sheet-rule" />
-            {previewQs.map((q, i) => (
-              <div key={i} className="sheet-q">
-                <div className="sheet-q-no">Q{i + 1}.</div>
-                <div style={{ flex: 1 }}>
-                  <div className="sheet-q-text" dangerouslySetInnerHTML={{ __html: q.q.split("\n\n")[0] + (q.q.includes("\n\n") ? " " + q.q.split("\n\n")[1] : "") }} />
-                  <ol className="sheet-opts">
-                    {q.options.map((o, oi) => <li key={oi}>{o}</li>)}
-                  </ol>
+            {previewQs.map((q, i) => {
+              const letters = ["A", "B", "C", "D"];
+              return (
+                <div key={i} className="sheet-q">
+                  <div className="sheet-q-no">Q{i + 1}.</div>
+                  <div style={{ flex: 1 }}>
+                    <div className="sheet-q-text" dangerouslySetInnerHTML={{ __html: q.q.split("\n\n")[0] + (q.q.includes("\n\n") ? " " + q.q.split("\n\n")[1] : "") }} />
+                    <ol className="sheet-opts">
+                      {q.options.map((o, oi) => (
+                        <li key={oi} className={oi === q.answer ? "sheet-correct" : undefined}>
+                          {o}{oi === q.answer ? "  ✓" : ""}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <div className="sheet-more">… {100 - previewQs.length} more questions in the full PDF</div>
+              );
+            })}
+            <div className="sheet-more">{previewQs.length} questions · correct answer marked with ✓</div>
           </div>
         </div>
       </div>
