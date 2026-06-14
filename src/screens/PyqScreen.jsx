@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Icon from "../components/Icon";
 import Chip from "../components/Chip";
-import { TIERS, QUESTIONS } from "../data/data";
+import { TIERS, QUESTIONS, SUBJECTS } from "../data/data";
 
 function TierCard({ tier, onOpen }) {
   const dateCount = tier.years.reduce((a, y) => a + y.dates.length, 0);
@@ -41,7 +41,7 @@ function ShiftRow({ dateObj, shift, onView }) {
   );
 }
 
-function YearAccordion({ tier, year, open, onToggle, onView }) {
+function YearAccordion({ tier, year, open, onToggle, onView, onViewSubject }) {
   return (
     <div className={"year-acc" + (open ? " open" : "")}>
       <button className="year-head" onClick={onToggle}>
@@ -56,6 +56,19 @@ function YearAccordion({ tier, year, open, onToggle, onView }) {
       </button>
       <div className="year-body">
         <div className="year-body-inner">
+          {tier.id === "tier1" && (
+            <div className="subject-bifurc">
+              <div className="subject-bifurc-label">Subject-wise · all shifts combined</div>
+              <div className="subject-bifurc-chips">
+                {SUBJECTS.map((s) => (
+                  <button key={s.id} className="subject-chip" style={{ "--c": s.color, "--soft": s.soft }}
+                    onClick={() => onViewSubject(year, s)}>
+                    <Icon name={s.icon} size={15} /> {s.short}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {year.dates.map((d) => (
             <div key={d.date} className="date-group">
               <div className="date-head">
@@ -142,16 +155,80 @@ function PaperViewer({ tier, info, onClose }) {
   );
 }
 
+function SubjectYearViewer({ tier, year, subject, onClose }) {
+  const sourceTags = new Set();
+  year.dates.forEach((d) => d.shifts.forEach((s) => sourceTags.add(`${tier.name} · ${d.date} · ${s}`)));
+  const matched = QUESTIONS[subject.id].filter((q) => sourceTags.has(q.source));
+  return (
+    <div className="modal-scrim" onClick={onClose}>
+      <div className="viewer" onClick={(e) => e.stopPropagation()}>
+        <div className="viewer-bar">
+          <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+            <div className="viewer-doc-ic" style={{ background: subject.soft, color: subject.color }}>
+              <Icon name={subject.icon} size={18} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div className="viewer-title">{subject.name} · {year.year}</div>
+              <div className="viewer-sub">{tier.name} · all shifts combined · {matched.length} questions</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="viewer-x" onClick={onClose}><Icon name="x" size={18} /></button>
+          </div>
+        </div>
+        <div className="viewer-page-wrap">
+          <div className="paper-sheet">
+            <div className="sheet-head">
+              <div>
+                <div className="sheet-org">Staff Selection Commission</div>
+                <div className="sheet-exam">{subject.name} — {tier.name} {year.year}</div>
+              </div>
+              <div className="sheet-meta">
+                <div>{year.window}</div><div>{matched.length} questions</div>
+              </div>
+            </div>
+            <div className="sheet-rule" />
+            {matched.map((q, i) => (
+              <div key={i} className="sheet-q">
+                <div className="sheet-q-no">Q{i + 1}.</div>
+                <div style={{ flex: 1 }}>
+                  <div className="sheet-q-text" dangerouslySetInnerHTML={{ __html: q.q.split("\n\n")[0] + (q.q.includes("\n\n") ? " " + q.q.split("\n\n")[1] : "") }} />
+                  {q.image && (
+                    <div className="sheet-q-image">
+                      <img src={q.image} alt="Question figure / table" loading="lazy" />
+                    </div>
+                  )}
+                  <ol className="sheet-opts">
+                    {q.options.map((o, oi) => (
+                      <li key={oi} className={oi === q.answer ? "sheet-correct" : undefined}>
+                        {o}{oi === q.answer ? "  ✓" : ""}
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="sheet-q-source">{q.source}</div>
+                </div>
+              </div>
+            ))}
+            <div className="sheet-more">{matched.length} questions · correct answer marked with ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PyqScreen() {
   const navigate = useNavigate();
   const { tierId } = useParams();
   const [openYear, setOpenYear] = useState(null);
   const [viewer, setViewer] = useState(null);
+  const [subjectViewer, setSubjectViewer] = useState(null);
   const tier = TIERS.find((t) => t.id === tierId);
 
   useEffect(() => { if (tier) setOpenYear(tier.years[0].year); }, [tierId]);
 
   const openView = (dateObj, shift) => setViewer({ info: { date: dateObj.date, shift } });
+  const openSubjectView = (year, subject) => setSubjectViewer({ year, subject });
 
   if (!tier) {
     return (
@@ -183,10 +260,12 @@ export default function PyqScreen() {
           <YearAccordion key={y.year} tier={tier} year={y}
             open={openYear === y.year}
             onToggle={() => setOpenYear(openYear === y.year ? null : y.year)}
-            onView={openView} />
+            onView={openView}
+            onViewSubject={openSubjectView} />
         ))}
       </div>
       {viewer && <PaperViewer tier={tier} info={viewer.info} onClose={() => setViewer(null)} />}
+      {subjectViewer && <SubjectYearViewer tier={tier} year={subjectViewer.year} subject={subjectViewer.subject} onClose={() => setSubjectViewer(null)} />}
     </div>
   );
 }
